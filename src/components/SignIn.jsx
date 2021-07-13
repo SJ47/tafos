@@ -1,5 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
+
+// Temporary
+import { auth } from "../firebase";
+//
+
 import {
     Button,
     Avatar,
@@ -40,6 +45,28 @@ const useStyles = makeStyles((theme) => ({
 const SignIn = () => {
     const classes = useStyles();
 
+    const [emailValue, setEmailValue] = useState("");
+    const [passwordValue, setPasswordValue] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleSignInClicked = (event) => {
+        event.preventDefault();
+        console.log("Sign In Clicked");
+
+        // Google example code
+        auth.signInWithEmailAndPassword(emailValue, passwordValue)
+            .then((userCredential) => {
+                // Signed in
+                var user = userCredential.user;
+                // ...
+                console.log("User details returned from login: ", user);
+            })
+            .catch((error) => {
+                setErrorMessage(error.code + ": " + error.message);
+                console.log("Error logging in: ", errorMessage);
+            });
+    };
+
     return (
         <>
             <Container component="main" maxWidth="xs">
@@ -62,6 +89,9 @@ const SignIn = () => {
                             name="email"
                             autoComplete="email"
                             autoFocus
+                            onChange={(event) =>
+                                setEmailValue(event.target.value)
+                            }
                         />
                         <TextField
                             variant="outlined"
@@ -73,6 +103,9 @@ const SignIn = () => {
                             type="password"
                             id="password"
                             autoComplete="current-password"
+                            onChange={(event) =>
+                                setPasswordValue(event.target.value)
+                            }
                         />
                         <FormControlLabel
                             control={
@@ -86,6 +119,7 @@ const SignIn = () => {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
+                            onClick={handleSignInClicked}
                         >
                             Sign In
                         </Button>
