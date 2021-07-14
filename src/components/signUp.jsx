@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Button,
     Avatar,
@@ -15,6 +15,10 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
+
+// Temporary
+import { auth } from "../firebase";
+//
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -39,6 +43,35 @@ const useStyles = makeStyles((theme) => ({
 const signUp = () => {
     const classes = useStyles();
 
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [emailValue, setEmailValue] = useState("");
+    const [passwordValue, setPasswordValue] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSignUpClicked = (event) => {
+        event.preventDefault();
+        console.log("Sign Up Clicked");
+
+        // Google example code
+        // Handle loading/submission status to disable button to stop multiple submit clicks
+        setLoading(true);
+        auth.createUserWithEmailAndPassword(emailValue, passwordValue)
+            .then((userCredential) => {
+                // Signed in
+                var user = userCredential.user;
+                // after profile created, update the display name to be first and last name
+                user.updateProfile({ displayName: firstName + " " + lastName });
+            })
+            .catch((error) => {
+                setErrorMessage(error.code + ": " + error.message);
+                console.log("Error signing up: ", errorMessage);
+            });
+
+        setLoading(false);
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -61,6 +94,9 @@ const signUp = () => {
                                 id="firstName"
                                 label="First Name"
                                 autoFocus
+                                onChange={(event) =>
+                                    setFirstName(event.target.value)
+                                }
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -72,6 +108,9 @@ const signUp = () => {
                                 label="Last Name"
                                 name="lastName"
                                 autoComplete="lname"
+                                onChange={(event) =>
+                                    setLastName(event.target.value)
+                                }
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -83,6 +122,9 @@ const signUp = () => {
                                 label="Email Address"
                                 name="email"
                                 autoComplete="email"
+                                onChange={(event) =>
+                                    setEmailValue(event.target.value)
+                                }
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -95,6 +137,9 @@ const signUp = () => {
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"
+                                onChange={(event) =>
+                                    setPasswordValue(event.target.value)
+                                }
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -110,11 +155,13 @@ const signUp = () => {
                         </Grid>
                     </Grid>
                     <Button
+                        disabled={loading}
                         type="submit"
                         fullWidth
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={handleSignUpClicked}
                     >
                         Sign Up
                     </Button>
