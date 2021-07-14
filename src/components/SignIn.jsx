@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SignIn = () => {
+const SignIn = ({ handleSignedInStatus }) => {
     const classes = useStyles();
 
     const [emailValue, setEmailValue] = useState("");
@@ -60,6 +60,7 @@ const SignIn = () => {
                 var user = userCredential.user;
                 // ...
                 console.log("User details returned from login: ", user);
+                handleSignedInStatus();
             })
             .catch((error) => {
                 setErrorMessage(error.code + ": " + error.message);
