@@ -45,8 +45,8 @@ const useStyles = makeStyles((theme) => ({
 const SignIn = ({ handleSignedInStatus }) => {
     const classes = useStyles();
 
-    const [emailValue, setEmailValue] = useState("");
-    const [passwordValue, setPasswordValue] = useState("");
+    const [emailValue, setEmailValue] = useState("test1@home.com");
+    const [passwordValue, setPasswordValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
 
     const handleSignInClicked = (event) => {
@@ -93,6 +93,7 @@ const SignIn = ({ handleSignedInStatus }) => {
                             onChange={(event) =>
                                 setEmailValue(event.target.value)
                             }
+                            value={emailValue}
                         />
                         <TextField
                             variant="outlined"
@@ -107,6 +108,7 @@ const SignIn = ({ handleSignedInStatus }) => {
                             onChange={(event) =>
                                 setPasswordValue(event.target.value)
                             }
+                            value={passwordValue}
                         />
                         <FormControlLabel
                             control={

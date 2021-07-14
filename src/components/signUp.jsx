@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const signUp = () => {
+const SignUp = () => {
     const classes = useStyles();
 
     const [firstName, setFirstName] = useState("");
@@ -181,4 +181,4 @@ const signUp = () => {
     );
 };
 
-export default signUp;
+export default SignUp;

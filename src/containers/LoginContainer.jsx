@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import SignIn from "../components/SignIn";
 import SignUp from "../components/SignUp";
 import SignedInLandingPage from "../components/SignedInLandingPage";
+import EditProfile from "../components/EditProfile";
 import { auth } from "../firebase";
 
 const LoginContainer = () => {
@@ -20,13 +21,22 @@ const LoginContainer = () => {
 
     const handleSignedOutStatus = () => {
         setSignedIn(false);
+        auth.signOut();
         // console.log("SIGNED IN: ", signedIn);
+    };
+
+    const handleEditProfile = () => {
+        console.log("EDITING PROFILE");
+        // <Link to="/edit-profile" />;
+        // <Redirect to="/edit-profile" />;
+        // history.push("/edit-profile");
     };
 
     return (
         <>
             <Router>
                 <Switch>
+                    <Route path="/edit-profile" component={EditProfile} />
                     <Route
                         exact
                         path="/"
@@ -40,6 +50,7 @@ const LoginContainer = () => {
                                     handleSignedOutStatus={
                                         handleSignedOutStatus
                                     }
+                                    handleEditProfile={handleEditProfile}
                                 />
                             );
                         }}
@@ -56,11 +67,13 @@ const LoginContainer = () => {
                                     handleSignedOutStatus={
                                         handleSignedOutStatus
                                     }
+                                    handleEditProfile={handleEditProfile}
                                 />
                             );
                         }}
                     />
                     <Route path="/signup" component={SignUp} />
+                    <Route path="/edit-profile" component={EditProfile} />
                 </Switch>
             </Router>
         </>
