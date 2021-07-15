@@ -1,13 +1,12 @@
-import React, { useState } from "react";
-import logo from "./logo.svg";
+import React from "react";
 import "./App.css";
+import LoginContainer from "./containers/LoginContainer";
 
 function App() {
-    const [count, setCount] = useState(0);
-
     return (
         <div className="App">
             <h1>Welcome to TAFOS</h1>
+            <LoginContainer />
         </div>
     );
 }
