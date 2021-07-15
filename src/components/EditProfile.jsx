@@ -84,6 +84,7 @@ const EditProfile = () => {
                 console.log("Error updating profile to firebase");
             });
 
+        // TODO: need to not update email if not changed
         user.updateEmail(emailValue)
             .then(() => {
                 console.log("Email updated to firebase");
@@ -92,13 +93,14 @@ const EditProfile = () => {
                 console.log("Error updating email to firebase");
             });
 
-        user.updatePassword(passwordValue)
-            .then(() => {
-                console.log("Password updated to firebase");
-            })
-            .catch((error) => {
-                console.log("Error updating password to firebase");
-            });
+        // TODO: need to not update password if not changed.
+        // user.updatePassword(passwordValue)
+        //     .then(() => {
+        //         console.log("Password updated to firebase");
+        //     })
+        //     .catch((error) => {
+        //         console.log("Error updating password to firebase");
+        //     });
 
         // auth.createUserWithEmailAndPassword(emailValue, passwordValue)
         //     .then((userCredential) => {
