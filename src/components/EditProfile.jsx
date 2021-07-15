@@ -65,6 +65,41 @@ const EditProfile = () => {
         // Google example code
         // Handle loading/submission status to disable button to stop multiple submit clicks
         setLoading(true);
+
+        // if any field has changed, then save user back to firebase auth
+        const userDetails = {
+            firstName: firstName,
+            lastName: lastName,
+            emailValue: emailValue,
+            passwordValue: passwordValue,
+        };
+
+        user.updateProfile({
+            displayName: firstName + " " + lastName,
+        })
+            .then(() => {
+                console.log("Profile updated to firebase");
+            })
+            .catch((error) => {
+                console.log("Error updating profile to firebase");
+            });
+
+        user.updateEmail(emailValue)
+            .then(() => {
+                console.log("Email updated to firebase");
+            })
+            .catch((error) => {
+                console.log("Error updating email to firebase");
+            });
+
+        user.updatePassword(passwordValue)
+            .then(() => {
+                console.log("Password updated to firebase");
+            })
+            .catch((error) => {
+                console.log("Error updating password to firebase");
+            });
+
         // auth.createUserWithEmailAndPassword(emailValue, passwordValue)
         //     .then((userCredential) => {
         //         // Signed in
