@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SignedInLandingPage = ({ handleSignedOutStatus, handleEditProfile }) => {
+const Home = ({ handleSignedOutStatus, handleEditProfile }) => {
     const classes = useStyles();
 
     const user = auth.currentUser;
@@ -70,4 +70,4 @@ const SignedInLandingPage = ({ handleSignedOutStatus, handleEditProfile }) => {
     );
 };
 
-export default SignedInLandingPage;
+export default Home;
