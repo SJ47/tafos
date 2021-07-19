@@ -79,6 +79,7 @@ const EditProfile = () => {
         })
             .then(() => {
                 console.log("Profile updated to firebase");
+                // currentUser.displayName = firstName + " " + lastName;
             })
             .catch((error) => {
                 console.log("Error updating profile to firebase");
@@ -117,6 +118,10 @@ const EditProfile = () => {
         //     });
 
         setLoading(false);
+    };
+
+    const handleCancelChangesClicked = () => {
+        console.log("CANCEL CHANGES CLICKED");
     };
 
     return (
@@ -206,6 +211,20 @@ const EditProfile = () => {
                             onClick={handleSaveChangesClicked}
                         >
                             Save Changes
+                        </Button>
+                    </Link>
+
+                    <Link to="/home">
+                        <Button
+                            disabled={loading}
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                            onClick={handleCancelChangesClicked}
+                        >
+                            Cancel
                         </Button>
                     </Link>
                 </form>

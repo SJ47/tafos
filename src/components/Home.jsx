@@ -1,13 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Redirect, useHistory, Link } from "react-router-dom";
 import { Button, Box, Container } from "@material-ui/core";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Copyright from "./Copyright";
 
-// Temporary
-import { auth } from "../firebase";
-//
+import { useAuth } from "../contexts/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
     submit: {
@@ -15,15 +13,29 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const Home = ({ handleSignedOutStatus, handleEditProfile }) => {
+const Home = () => {
+    const history = useHistory();
     const classes = useStyles();
+    const [errorMessage, setErrorMessage] = useState("");
+    const { currentUser, signout } = useAuth();
 
-    const user = auth.currentUser;
-    const userData = {
-        displayName: user.displayName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-    };
+    if (!currentUser) {
+        console.log("NOT SIGNED IN!!!  GET OUT!");
+        return <Redirect to="/signin" />;
+    }
+
+    function handleSignOut() {
+        setErrorMessage("");
+
+        signout()
+            .then(() => {
+                history.push("/signin");
+            })
+            .catch((error) => {
+                setErrorMessage(error.message);
+                console.log("Error signing out: ", errorMessage);
+            });
+    }
 
     return (
         <div>
@@ -31,21 +43,23 @@ const Home = ({ handleSignedOutStatus, handleEditProfile }) => {
             {/* Update profile */}
             <Container component="main" maxWidth="xs">
                 <h2>User Profile</h2>
-                <p>Display Name: {userData.displayName}</p>
-                <p>Email: {userData.email}</p>
-                <p>Phone No: {userData.phoneNumber}</p>
-                <Link to="/edit-profile">
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                        onClick={handleEditProfile}
-                    >
-                        Edit Profile
-                    </Button>
-                </Link>
+                <p>Display Name: {currentUser.displayName}</p>
+                <p>Email: {currentUser.email}</p>
+                <p>Phone No: {currentUser.phoneNumber}</p>
+                {/* <Link to="/edit-profile" /> */}
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    // onClick={handleEditProfile}
+                    onClick={() => history.push("/edit-profile")}
+                >
+                    Edit Profile
+                </Button>
+
+                {/* </Link> */}
             </Container>
 
             {/* Sign Out */}
@@ -56,7 +70,7 @@ const Home = ({ handleSignedOutStatus, handleEditProfile }) => {
                     variant="contained"
                     color="primary"
                     className={classes.submit}
-                    onClick={handleSignedOutStatus}
+                    onClick={handleSignOut}
                 >
                     Sign Out
                 </Button>

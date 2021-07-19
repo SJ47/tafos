@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 import {
     Button,
@@ -14,6 +15,10 @@ import {
     Typography,
     Container,
 } from "@material-ui/core";
+
+import Alert from "@material-ui/lab/Alert";
+import AlertTitle from "@material-ui/lab/AlertTitle";
+
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
@@ -49,35 +54,75 @@ const SignUp = () => {
     const [lastName, setLastName] = useState("");
     const [emailValue, setEmailValue] = useState("");
     const [passwordValue, setPasswordValue] = useState("");
+    const [passwordConfirmValue, setPasswordConfirmValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const history = useHistory();
 
-    const handleSignUpClicked = (event) => {
+    const { signup } = useAuth();
+
+    const handleSignUpClicked = async (event) => {
         event.preventDefault();
         console.log("Sign Up Clicked");
 
         // Google example code
         // Handle loading/submission status to disable button to stop multiple submit clicks
-        setLoading(true);
-        auth.createUserWithEmailAndPassword(emailValue, passwordValue)
-            .then((userCredential) => {
-                // Signed in
-                var user = userCredential.user;
-                // after profile created, update the display name to be first and last name
-                user.updateProfile({ displayName: firstName + " " + lastName });
-            })
-            .catch((error) => {
-                setErrorMessage(error.code + ": " + error.message);
-                console.log("Error signing up: ", errorMessage);
-            });
+        // setLoading(true);
+        // auth.createUserWithEmailAndPassword(emailValue, passwordValue)
+        //     .then((userCredential) => {
+        //         // Signed in
+        //         var user = userCredential.user;
+        //         // after profile created, update the display name to be first and last name
+        //         user.updateProfile({ displayName: firstName + " " + lastName });
+        //     })
+        //     .catch((error) => {
+        //         setErrorMessage(error.code + ": " + error.message);
+        //         console.log("Error signing up: ", errorMessage);
+        //     });
+
+        // setLoading(false);
+
+        // Check password against confirm password fields
+        if (passwordValue !== passwordConfirmValue) {
+            return setErrorMessage("Passwords do not match");
+        }
+
+        // Sign up user
+        try {
+            setErrorMessage("");
+            setLoading(true);
+            await signup(emailValue, passwordValue);
+            history.push("/");
+        } catch {
+            setErrorMessage("Failed to create account");
+            // console.log("ERROR!!: ", err);
+        }
 
         setLoading(false);
+
+        // setErrorMessage("");
+        // setLoading(true);
+        // signup(emailValue, passwordValue)
+        //     .then(() => history.push("/"))
+        //     .catch((error) => {
+        //         setErrorMessage(error.message);
+        //         console.log("Error signing up: ", errorMessage);
+        //     });
+        // setLoading(false);
+        // }
     };
+
+    // };
 
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
+                {errorMessage && (
+                    <Alert severity="error">
+                        Error alert — <strong>{errorMessage}</strong>
+                    </Alert>
+                )}
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon />
                 </Avatar>
@@ -141,6 +186,21 @@ const SignUp = () => {
                                 autoComplete="current-password"
                                 onChange={(event) =>
                                     setPasswordValue(event.target.value)
+                                }
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                name="passwordConfirm"
+                                label="Confirm Password"
+                                type="password"
+                                id="passwordConfirm"
+                                autoComplete="current-password"
+                                onChange={(event) =>
+                                    setPasswordConfirmValue(event.target.value)
                                 }
                             />
                         </Grid>

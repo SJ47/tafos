@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReactDOM from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 // Temporary
 import { auth } from "../firebase";
@@ -19,6 +20,8 @@ import {
     Typography,
     Container,
 } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
+import AlertTitle from "@material-ui/lab/AlertTitle";
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
@@ -43,30 +46,34 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SignIn = ({ handleSignedInStatus }) => {
+const SignIn = () => {
     const classes = useStyles();
 
     const [emailValue, setEmailValue] = useState("test1@home.com");
     const [passwordValue, setPasswordValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+    const history = useHistory();
 
-    const handleSignInClicked = (event) => {
+    const { signin } = useAuth();
+
+    const emailRef = useRef();
+    const passwordRef = useRef();
+
+    const handleSignInClicked = async (event) => {
         event.preventDefault();
         console.log("Sign In Clicked");
 
-        // Google example code
-        auth.signInWithEmailAndPassword(emailValue, passwordValue)
-            .then((userCredential) => {
-                // Signed in
-                var user = userCredential.user;
-                // ...
-                console.log("User details returned from login: ", user);
-                handleSignedInStatus();
-            })
-            .catch((error) => {
-                setErrorMessage(error.code + ": " + error.message);
-                console.log("Error logging in: ", errorMessage);
-            });
+        try {
+            setErrorMessage("");
+            setLoading(true);
+            await signin(emailValue, passwordValue);
+            history.push("/");
+        } catch {
+            setErrorMessage("Failed to log in");
+        }
+
+        setLoading(false);
     };
 
     return (
@@ -74,6 +81,11 @@ const SignIn = ({ handleSignedInStatus }) => {
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <div className={classes.paper}>
+                    {errorMessage && (
+                        <Alert severity="error">
+                            Error alert — <strong>{errorMessage}</strong>
+                        </Alert>
+                    )}
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon />
                     </Avatar>
@@ -95,6 +107,7 @@ const SignIn = ({ handleSignedInStatus }) => {
                                 setEmailValue(event.target.value)
                             }
                             value={emailValue}
+                            // ref={emailRef}
                         />
                         <TextField
                             variant="outlined"
@@ -110,6 +123,7 @@ const SignIn = ({ handleSignedInStatus }) => {
                                 setPasswordValue(event.target.value)
                             }
                             value={passwordValue}
+                            // ref={passwordRef}
                         />
                         <FormControlLabel
                             control={
@@ -124,16 +138,19 @@ const SignIn = ({ handleSignedInStatus }) => {
                             color="primary"
                             className={classes.submit}
                             onClick={handleSignInClicked}
+                            // onClick={()=>history.push("signin")}
                         >
                             Sign In
                         </Button>
                         <Grid container>
                             <Grid item xs>
+                                {/* TODO: look to do a redirect instead of link?? */}
                                 <Link to="#" variant="body2">
                                     Forgot password?
                                 </Link>
                             </Grid>
                             <Grid item>
+                                {/* TODO: look to do a redirect instead of link?? */}
                                 <Link to="/signup" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
