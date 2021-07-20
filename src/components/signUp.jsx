@@ -65,23 +65,6 @@ const SignUp = () => {
         event.preventDefault();
         console.log("Sign Up Clicked");
 
-        // Google example code
-        // Handle loading/submission status to disable button to stop multiple submit clicks
-        // setLoading(true);
-        // auth.createUserWithEmailAndPassword(emailValue, passwordValue)
-        //     .then((userCredential) => {
-        //         // Signed in
-        //         var user = userCredential.user;
-        //         // after profile created, update the display name to be first and last name
-        //         user.updateProfile({ displayName: firstName + " " + lastName });
-        //     })
-        //     .catch((error) => {
-        //         setErrorMessage(error.code + ": " + error.message);
-        //         console.log("Error signing up: ", errorMessage);
-        //     });
-
-        // setLoading(false);
-
         // Check password against confirm password fields
         if (passwordValue !== passwordConfirmValue) {
             return setErrorMessage("Passwords do not match");
@@ -95,21 +78,9 @@ const SignUp = () => {
             history.push("/");
         } catch {
             setErrorMessage("Failed to create account");
-            // console.log("ERROR!!: ", err);
         }
 
         setLoading(false);
-
-        // setErrorMessage("");
-        // setLoading(true);
-        // signup(emailValue, passwordValue)
-        //     .then(() => history.push("/"))
-        //     .catch((error) => {
-        //         setErrorMessage(error.message);
-        //         console.log("Error signing up: ", errorMessage);
-        //     });
-        // setLoading(false);
-        // }
     };
 
     // };

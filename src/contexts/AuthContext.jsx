@@ -27,6 +27,22 @@ export function AuthProvider({ children }) {
         return auth.signOut();
     }
 
+    function resetPassword(email) {
+        return auth.sendPasswordResetEmail(email);
+    }
+
+    function updateProfile(displayName) {
+        return currentUser.updateProfile(displayName);
+    }
+
+    function updateEmail(email) {
+        return currentUser.updateEmail(email);
+    }
+
+    function updatePassword(password) {
+        return currentUser.updatePassword(password);
+    }
+
     // Only run this when our component mounts and unsubscribe from it where we are done to tidy up the event listener
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -42,6 +58,10 @@ export function AuthProvider({ children }) {
         signin,
         signup,
         signout,
+        resetPassword,
+        updateProfile,
+        updateEmail,
+        updatePassword,
     };
 
     return (

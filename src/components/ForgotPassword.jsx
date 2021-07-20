@@ -1,10 +1,7 @@
 import React, { useState, useRef } from "react";
+import ReactDOM from "react-dom";
 import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
-// Temporary
-import { auth } from "../firebase";
-//
 
 import {
     Button,
@@ -13,6 +10,7 @@ import {
     TextField,
     FormControlLabel,
     Checkbox,
+    // Link,
     Grid,
     Box,
     Typography,
@@ -44,16 +42,17 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SignIn = () => {
+const ForgotPassword = () => {
     const classes = useStyles();
 
-    const [emailValue, setEmailValue] = useState("test1@home.com");
-    const [passwordValue, setPasswordValue] = useState("abc123");
+    const [emailValue, setEmailValue] = useState("");
+    // const [passwordValue, setPasswordValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const history = useHistory();
 
-    const { signin } = useAuth();
+    const { resetPassword } = useAuth();
 
     // const emailRef = useRef();
     // const passwordRef = useRef();
@@ -63,12 +62,15 @@ const SignIn = () => {
         console.log("Sign In Clicked");
 
         try {
+            setMessage("");
             setErrorMessage("");
             setLoading(true);
-            await signin(emailValue, passwordValue);
-            history.push("/");
+            await resetPassword(emailValue);
+            setMessage("Check your email inbox for further instructions");
+
+            // history.push("/");
         } catch {
-            setErrorMessage("Failed to log in");
+            setErrorMessage("Failed to reset password");
         }
 
         setLoading(false);
@@ -79,6 +81,11 @@ const SignIn = () => {
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <div className={classes.paper}>
+                    {message && (
+                        <Alert severity="success">
+                            <strong>{message}</strong>
+                        </Alert>
+                    )}
                     {errorMessage && (
                         <Alert severity="error">
                             Error alert — <strong>{errorMessage}</strong>
@@ -88,7 +95,7 @@ const SignIn = () => {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        Password Reset
                     </Typography>
                     <form className={classes.form} noValidate>
                         <TextField
@@ -107,7 +114,7 @@ const SignIn = () => {
                             value={emailValue}
                             // ref={emailRef}
                         />
-                        <TextField
+                        {/* <TextField
                             variant="outlined"
                             margin="normal"
                             required
@@ -122,13 +129,13 @@ const SignIn = () => {
                             }
                             value={passwordValue}
                             // ref={passwordRef}
-                        />
-                        <FormControlLabel
+                        /> */}
+                        {/* <FormControlLabel
                             control={
                                 <Checkbox value="remember" color="primary" />
                             }
                             label="Remember me"
-                        />
+                        /> */}
                         <Button
                             type="submit"
                             fullWidth
@@ -136,13 +143,14 @@ const SignIn = () => {
                             color="primary"
                             className={classes.submit}
                             onClick={handleSignInClicked}
+                            // onClick={()=>history.push("signin")}
                         >
-                            Sign In
+                            Reset Password
                         </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link to="/forgot-password" variant="body2">
-                                    Forgot password?
+                                <Link to="/signin" variant="body2">
+                                    Sign In
                                 </Link>
                             </Grid>
                             <Grid item>
@@ -161,4 +169,4 @@ const SignIn = () => {
     );
 };
 
-export default SignIn;
+export default ForgotPassword;

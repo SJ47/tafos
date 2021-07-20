@@ -11,6 +11,7 @@ import Home from "../components/Home";
 import EditProfile from "../components/EditProfile";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { AuthProvider } from "../contexts/AuthContext";
+import ForgotPassword from "../components/ForgotPassword";
 // import { auth } from "../firebase";
 
 const LoginContainer = () => {
@@ -52,6 +53,10 @@ const LoginContainer = () => {
                         <ProtectedRoute exact path="/home" component={Home} />
                         <Route path="/signin" component={SignIn} />
                         <Route path="/signup" component={SignUp} />
+                        <Route
+                            path="/forgot-password"
+                            component={ForgotPassword}
+                        />
 
                         {/* <Route path="/home" component={Home} /> */}
 
