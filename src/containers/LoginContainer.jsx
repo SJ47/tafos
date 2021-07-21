@@ -129,12 +129,3 @@ const LoginContainer = () => {
 };
 
 export default LoginContainer;
-
-// <Router>
-//     <Switch>
-//         <Route exact path="/" component={SignIn} />
-//         <Route path="/signin" component={SignIn} />
-//         <Route path="/signup" component={SignUp} />
-//         {/* <Route component={ErrorPage} /> */}
-//     </Switch>
-// </Router>;

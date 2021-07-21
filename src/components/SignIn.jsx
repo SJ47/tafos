@@ -47,13 +47,14 @@ const useStyles = makeStyles((theme) => ({
 const SignIn = () => {
     const classes = useStyles();
 
-    const [emailValue, setEmailValue] = useState("test1@home.com");
+    const [emailValue, setEmailValue] = useState("test1@umachan.co.uk");
     const [passwordValue, setPasswordValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
     const history = useHistory();
 
-    const { signin } = useAuth();
+    const { signin, signout } = useAuth();
 
     // const emailRef = useRef();
     // const passwordRef = useRef();
@@ -65,7 +66,9 @@ const SignIn = () => {
         try {
             setErrorMessage("");
             setLoading(true);
-            await signin(emailValue, passwordValue);
+            const userCredential = await signin(emailValue, passwordValue);
+            if (userCredential.user.emailVerified === false)
+                userCredential.signout();
             history.push("/");
         } catch {
             setErrorMessage("Failed to log in");
@@ -81,7 +84,7 @@ const SignIn = () => {
                 <div className={classes.paper}>
                     {errorMessage && (
                         <Alert severity="error">
-                            Error alert — <strong>{errorMessage}</strong>
+                            <strong>{errorMessage}</strong>
                         </Alert>
                     )}
                     <Avatar className={classes.avatar}>

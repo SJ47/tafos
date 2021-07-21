@@ -25,6 +25,7 @@ import Copyright from "./Copyright";
 
 // Temporary
 import { auth } from "../firebase";
+import { SingleBedOutlined } from "@material-ui/icons";
 //
 
 const useStyles = makeStyles((theme) => ({
@@ -52,14 +53,14 @@ const SignUp = () => {
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [emailValue, setEmailValue] = useState("");
-    const [passwordValue, setPasswordValue] = useState("");
-    const [passwordConfirmValue, setPasswordConfirmValue] = useState("");
+    const [emailValue, setEmailValue] = useState("test1@umachan.co.uk");
+    const [passwordValue, setPasswordValue] = useState("abc123");
+    const [passwordConfirmValue, setPasswordConfirmValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const history = useHistory();
 
-    const { signup } = useAuth();
+    const { signup, signout, sendVerificationEmail } = useAuth();
 
     const handleSignUpClicked = async (event) => {
         event.preventDefault();
@@ -70,20 +71,23 @@ const SignUp = () => {
             return setErrorMessage("Passwords do not match");
         }
 
-        // Sign up user
+        // Sign up user, send verification email and sign them out immediately until verified
         try {
             setErrorMessage("");
             setLoading(true);
-            await signup(emailValue, passwordValue);
-            history.push("/");
+
+            await signup(emailValue, passwordValue).then((userCredential) => {
+                sendVerificationEmail(userCredential.user);
+            });
+            await signout().then(() => {
+                setLoading(false);
+                history.push("/");
+            });
         } catch {
             setErrorMessage("Failed to create account");
+            setLoading(false);
         }
-
-        setLoading(false);
     };
-
-    // };
 
     return (
         <Container component="main" maxWidth="xs">
@@ -91,7 +95,7 @@ const SignUp = () => {
             <div className={classes.paper}>
                 {errorMessage && (
                     <Alert severity="error">
-                        Error alert — <strong>{errorMessage}</strong>
+                        <strong>{errorMessage}</strong>
                     </Alert>
                 )}
                 <Avatar className={classes.avatar}>
@@ -143,6 +147,7 @@ const SignUp = () => {
                                 onChange={(event) =>
                                     setEmailValue(event.target.value)
                                 }
+                                value={emailValue}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -158,6 +163,7 @@ const SignUp = () => {
                                 onChange={(event) =>
                                     setPasswordValue(event.target.value)
                                 }
+                                value={passwordValue}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -173,6 +179,7 @@ const SignUp = () => {
                                 onChange={(event) =>
                                     setPasswordConfirmValue(event.target.value)
                                 }
+                                value={passwordConfirmValue}
                             />
                         </Grid>
                         <Grid item xs={12}>

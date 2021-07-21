@@ -88,7 +88,7 @@ const ForgotPassword = () => {
                     )}
                     {errorMessage && (
                         <Alert severity="error">
-                            Error alert — <strong>{errorMessage}</strong>
+                            <strong>{errorMessage}</strong>
                         </Alert>
                     )}
                     <Avatar className={classes.avatar}>

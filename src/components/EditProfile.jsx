@@ -14,6 +14,8 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import PersonOutlineOutlinedIcon from "@material-ui/icons/PersonOutlineOutlined";
+
 import Alert from "@material-ui/lab/Alert";
 import Copyright from "./Copyright";
 
@@ -26,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.success.main,
     },
     form: {
         width: "100%", // Fix IE 11 issue.
@@ -113,11 +115,11 @@ const EditProfile = () => {
             <div className={classes.paper}>
                 {errorMessage && (
                     <Alert severity="error">
-                        Error alert — <strong>{errorMessage}</strong>
+                        <strong>{errorMessage}</strong>
                     </Alert>
                 )}
                 <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon />
+                    <PersonOutlineOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
                     Edit Profile
