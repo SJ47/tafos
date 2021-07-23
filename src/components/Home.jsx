@@ -11,7 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(4),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -33,10 +33,10 @@ const Home = () => {
     const history = useHistory();
     const classes = useStyles();
     const [errorMessage, setErrorMessage] = useState("");
-    const { currentUser, signout } = useAuth();
+    const { currentUser, signout, deleteAccount } = useAuth();
 
     if (!currentUser) {
-        console.log("NOT SIGNED IN!!!  GET OUT!");
+        // console.log("NOT SIGNED IN!!!  GET OUT!");
         return <Redirect to="/signin" />;
     }
 
@@ -48,8 +48,8 @@ const Home = () => {
                 history.push("/signin");
             })
             .catch((error) => {
-                setErrorMessage(error.message);
-                console.log("Error signing out: ", errorMessage);
+                setErrorMessage("Failed to sign out: " + error.message);
+                // console.log("Error signing out: ", errorMessage);
             });
     }
 
@@ -83,10 +83,10 @@ const Home = () => {
 
                     {/* </Link> */}
                 </div>
-            </Container>
+                {/* </Container> */}
 
-            {/* Sign Out */}
-            <Container component="main" maxWidth="xs">
+                {/* Sign Out */}
+                {/* <Container component="main" maxWidth="xs"> */}
                 <Button
                     type="submit"
                     fullWidth
@@ -97,6 +97,10 @@ const Home = () => {
                 >
                     Sign Out
                 </Button>
+
+                <Link to="/delete-account" variant="body2">
+                    {"Delete account"}
+                </Link>
                 <Box mt={8}>
                     <Copyright />
                 </Box>

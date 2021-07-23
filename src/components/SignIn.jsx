@@ -3,7 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 // Temporary
-import { auth } from "../firebase";
+// import { auth } from "../firebase";
 //
 
 import {
@@ -19,14 +19,14 @@ import {
     Container,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import AlertTitle from "@material-ui/lab/AlertTitle";
+// import AlertTitle from "@material-ui/lab/AlertTitle";
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(4),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -51,13 +51,10 @@ const SignIn = () => {
     const [passwordValue, setPasswordValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [isEmailVerified, setIsEmailVerified] = useState(false);
     const history = useHistory();
+    const [currentCredential, setCurrentCredential] = useState();
 
-    const { signin, signout } = useAuth();
-
-    // const emailRef = useRef();
-    // const passwordRef = useRef();
+    const { signin, signout, sendVerificationEmail } = useAuth();
 
     const handleSignInClicked = async (event) => {
         event.preventDefault();
@@ -66,15 +63,41 @@ const SignIn = () => {
         try {
             setErrorMessage("");
             setLoading(true);
-            const userCredential = await signin(emailValue, passwordValue);
-            if (userCredential.user.emailVerified === false)
-                userCredential.signout();
+            const currentUser = await signin(emailValue, passwordValue);
+            // console.log(
+            //     "CURRENT USER AT SIGNIN: " +
+            //         currentUser.user.email +
+            //         " " +
+            //         currentUser.user.emailVerified
+            // );
+
+            // If email is not verified, throw an unverified email error
+            if (currentUser.user.emailVerified === false) {
+                // console.log("4.1 - FALSE");
+                setCurrentCredential(currentUser);
+                await signout();
+                throw new TypeError("Email not yet verified");
+            }
             history.push("/");
-        } catch {
-            setErrorMessage("Failed to log in");
+        } catch (error) {
+            // console.log("8", e.message);
+            setErrorMessage("Failed to sign in: " + error.message);
         }
 
         setLoading(false);
+    };
+
+    const handleResendEmailVerificationClicked = () => {
+        // console.log("RESEND VERIFICATION EMAIL", currentCredential.user.email);
+
+        try {
+            sendVerificationEmail(currentCredential.user);
+            history.push("/");
+        } catch (error) {
+            setErrorMessage(
+                "Failed to re-send email verification: " + error.message
+            );
+        }
     };
 
     return (
@@ -85,8 +108,27 @@ const SignIn = () => {
                     {errorMessage && (
                         <Alert severity="error">
                             <strong>{errorMessage}</strong>
+                            {errorMessage === "Email not yet verified" && (
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.submit}
+                                    onClick={
+                                        handleResendEmailVerificationClicked
+                                    }
+                                >
+                                    Click to Re-send Verification Email
+                                </Button>
+                            )}
                         </Alert>
                     )}
+
+                    {/* {errorMessage === "Email not yet verified" && (
+                        <Button>Resend Email Verification</Button>
+                    )} */}
+
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon />
                     </Avatar>

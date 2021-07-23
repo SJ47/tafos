@@ -30,7 +30,7 @@ import { SingleBedOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(4),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -83,8 +83,8 @@ const SignUp = () => {
                 setLoading(false);
                 history.push("/");
             });
-        } catch {
-            setErrorMessage("Failed to create account");
+        } catch (error) {
+            setErrorMessage("Failed to sign up: " + error.message);
             setLoading(false);
         }
     };

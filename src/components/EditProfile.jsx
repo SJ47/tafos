@@ -13,7 +13,6 @@ import {
     Container,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import PersonOutlineOutlinedIcon from "@material-ui/icons/PersonOutlineOutlined";
 
 import Alert from "@material-ui/lab/Alert";
@@ -21,7 +20,7 @@ import Copyright from "./Copyright";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(4),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -44,14 +43,19 @@ const EditProfile = () => {
     const history = useHistory();
     // const user = auth.currentUser;
 
-    const { currentUser, updateEmail, updatePassword, updateProfile } =
-        useAuth();
+    const {
+        currentUser,
+        updateEmail,
+        updatePassword,
+        updateProfile,
+        sendVerificationEmail,
+    } = useAuth();
 
     // If display name is empty or null, then don't try to split it, just set to empty string
     const fullName =
         currentUser.displayName !== null
             ? currentUser.displayName.split(" ")
-            : "";
+            : ["", ""];
 
     const [firstName, setFirstName] = useState(fullName[0]);
     const [lastName, setLastName] = useState(fullName[1]);
@@ -83,6 +87,7 @@ const EditProfile = () => {
         // If email value has changed then add that function call to the promise array list to fulfil
         if (emailValue !== currentUser.email) {
             promises.push(updateEmail(emailValue));
+            promises.push(sendVerificationEmail(currentUser.user));
         }
 
         // If password value has anything typed in then add that function call to the promise array list to fulfil

@@ -1,7 +1,13 @@
 import React, { useState, useRef } from "react";
-import ReactDOM from "react-dom";
 import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+
+// Temporary
+import { auth } from "../firebase";
+//
+
+import firebase from "firebase/app";
+import "firebase/auth";
 
 import {
     Button,
@@ -10,7 +16,6 @@ import {
     TextField,
     FormControlLabel,
     Checkbox,
-    // Link,
     Grid,
     Box,
     Typography,
@@ -19,7 +24,9 @@ import {
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import { makeStyles } from "@material-ui/core/styles";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import PersonOutlineOutlinedIcon from "@material-ui/icons/PersonOutlineOutlined";
+import DeleteIcon from "@material-ui/icons/Delete";
+
 import Copyright from "./Copyright";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.success.main,
     },
     form: {
         width: "100%", // Fix IE 11 issue.
@@ -42,35 +49,40 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ForgotPassword = () => {
+const DeleteAccount = () => {
     const classes = useStyles();
 
-    const [emailValue, setEmailValue] = useState("");
-    // const [passwordValue, setPasswordValue] = useState("");
+    // const [emailValue, setEmailValue] = useState("");
+    const [passwordValue, setPasswordValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
     const history = useHistory();
 
-    const { resetPassword } = useAuth();
+    const { signout, deleteAccount } = useAuth();
 
     // const emailRef = useRef();
     // const passwordRef = useRef();
 
-    const handleSignInClicked = async (event) => {
+    const handleDeleteAccountClicked = async (event) => {
         event.preventDefault();
-        console.log("Sign In Clicked");
+        console.log("Delete Account Clicked");
+
+        // const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
+        const credentials = firebase.auth.EmailAuthProvider.credential(
+            user.email,
+            passwordValue
+        );
 
         try {
-            setMessage("");
             setErrorMessage("");
             setLoading(true);
-            await resetPassword(emailValue);
-            setMessage("Check your email inbox for further instructions");
-
-            // history.push("/");
+            await user.reauthenticateWithCredential(credentials);
+            await deleteAccount();
+            history.push("/");
         } catch (error) {
-            setErrorMessage("Failed to reset password: " + error.message);
+            setErrorMessage("Failed to delete account: " + error.message);
         }
 
         setLoading(false);
@@ -81,40 +93,19 @@ const ForgotPassword = () => {
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <div className={classes.paper}>
-                    {message && (
-                        <Alert severity="success">
-                            <strong>{message}</strong>
-                        </Alert>
-                    )}
                     {errorMessage && (
                         <Alert severity="error">
                             <strong>{errorMessage}</strong>
                         </Alert>
                     )}
                     <Avatar className={classes.avatar}>
-                        <LockOutlinedIcon />
+                        <PersonOutlineOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Password Reset
+                        Delete account{" "}
                     </Typography>
                     <form className={classes.form} noValidate>
                         <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email Address"
-                            name="email"
-                            autoComplete="email"
-                            autoFocus
-                            onChange={(event) =>
-                                setEmailValue(event.target.value)
-                            }
-                            value={emailValue}
-                            // ref={emailRef}
-                        />
-                        {/* <TextField
                             variant="outlined"
                             margin="normal"
                             required
@@ -127,38 +118,22 @@ const ForgotPassword = () => {
                             onChange={(event) =>
                                 setPasswordValue(event.target.value)
                             }
-                            value={passwordValue}
+                            // value={passwordValue}
                             // ref={passwordRef}
-                        /> */}
-                        {/* <FormControlLabel
-                            control={
-                                <Checkbox value="remember" color="primary" />
-                            }
-                            label="Remember me"
-                        /> */}
+                        />
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
-                            color="primary"
+                            color="secondary"
                             className={classes.submit}
-                            onClick={handleSignInClicked}
-                            // onClick={()=>history.push("signin")}
+                            onClick={handleDeleteAccountClicked}
+                            startIcon={<DeleteIcon />}
                         >
-                            Reset Password
+                            Delete account{" "}
                         </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link to="/signin" variant="body2">
-                                    Sign In
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link to="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid>
+
+                        <Link to="/">Cancel</Link>
                     </form>
                 </div>
                 <Box mt={8}>
@@ -169,4 +144,4 @@ const ForgotPassword = () => {
     );
 };
 
-export default ForgotPassword;
+export default DeleteAccount;

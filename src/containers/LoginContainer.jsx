@@ -12,6 +12,7 @@ import EditProfile from "../components/EditProfile";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { AuthProvider } from "../contexts/AuthContext";
 import ForgotPassword from "../components/ForgotPassword";
+import DeleteAccount from "../components/DeleteAccount";
 // import { auth } from "../firebase";
 
 const LoginContainer = () => {
@@ -51,6 +52,10 @@ const LoginContainer = () => {
                             component={EditProfile}
                         />
                         <ProtectedRoute exact path="/home" component={Home} />
+                        <ProtectedRoute
+                            path="/delete-account"
+                            component={DeleteAccount}
+                        />
                         <Route path="/signin" component={SignIn} />
                         <Route path="/signup" component={SignUp} />
                         <Route
