@@ -4,102 +4,48 @@ import SignIn from "../components/SignIn";
 import SignUp from "../components/SignUp";
 import Home from "../components/Home";
 import EditProfile from "../components/EditProfile";
-import { auth } from "../firebase";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { AuthProvider } from "../contexts/AuthContext";
+import ForgotPassword from "../components/ForgotPassword";
+import DeleteAccount from "../components/DeleteAccount";
+import ChangeEmail from "../components/ChangeEmail";
+import ChangePassword from "../components/ChangePassword";
 
 const LoginContainer = () => {
-    const [signedIn, setSignedIn] = useState(false);
-
-    useEffect(() => {
-        console.log("SIGNED IN: ", signedIn);
-    }, [signedIn]);
-
-    // Set signed in status
-    const handleSignedInStatus = () => {
-        setSignedIn(true);
-        // console.log("SIGNED IN: ", signedIn);
-    };
-
-    const handleSignedOutStatus = () => {
-        setSignedIn(false);
-        auth.signOut();
-        // console.log("SIGNED IN: ", signedIn);
-    };
-
-    const handleEditProfile = () => {
-        console.log("EDITING PROFILE");
-    };
-
     return (
         <>
             <Router>
-                <Switch>
-                    <Route
-                        exact
-                        path="/"
-                        render={() => {
-                            return !signedIn ? (
-                                <SignIn
-                                    handleSignedInStatus={handleSignedInStatus}
-                                />
-                            ) : (
-                                <Home
-                                    handleSignedOutStatus={
-                                        handleSignedOutStatus
-                                    }
-                                    handleEditProfile={handleEditProfile}
-                                />
-                            );
-                        }}
-                    />
-                    <Route
-                        path="/signin"
-                        render={() => {
-                            return !signedIn ? (
-                                <SignIn
-                                    handleSignedInStatus={handleSignedInStatus}
-                                />
-                            ) : (
-                                <Home
-                                    handleSignedOutStatus={
-                                        handleSignedOutStatus
-                                    }
-                                    handleEditProfile={handleEditProfile}
-                                />
-                            );
-                        }}
-                    />
-                    <Route path="/signup" component={SignUp} />
-                    <Route path="/edit-profile" component={EditProfile} />
-                    <Route
-                        path="/home"
-                        render={() => {
-                            return !signedIn ? (
-                                <SignIn
-                                    handleSignedInStatus={handleSignedInStatus}
-                                />
-                            ) : (
-                                <Home
-                                    handleSignedOutStatus={
-                                        handleSignedOutStatus
-                                    }
-                                    handleEditProfile={handleEditProfile}
-                                />
-                            );
-                        }}
-                    />
-                </Switch>
+                <AuthProvider>
+                    <Switch>
+                        <ProtectedRoute exact path="/" component={Home} />
+                        <ProtectedRoute
+                            path="/edit-profile"
+                            component={EditProfile}
+                        />
+                        <ProtectedRoute exact path="/home" component={Home} />
+                        <ProtectedRoute
+                            path="/change-email"
+                            component={ChangeEmail}
+                        />
+                        <ProtectedRoute
+                            path="/change-password"
+                            component={ChangePassword}
+                        />
+                        <ProtectedRoute
+                            path="/delete-account"
+                            component={DeleteAccount}
+                        />
+                        <Route path="/signin" component={SignIn} />
+                        <Route path="/signup" component={SignUp} />
+                        <Route
+                            path="/forgot-password"
+                            component={ForgotPassword}
+                        />
+                    </Switch>
+                </AuthProvider>
             </Router>
         </>
     );
 };
 
 export default LoginContainer;
-
-// <Router>
-//     <Switch>
-//         <Route exact path="/" component={SignIn} />
-//         <Route path="/signin" component={SignIn} />
-//         <Route path="/signup" component={SignUp} />
-//         {/* <Route component={ErrorPage} /> */}
-//     </Switch>
-// </Router>;

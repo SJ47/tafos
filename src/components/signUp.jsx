@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 import {
     Button,
@@ -8,23 +9,21 @@ import {
     TextField,
     FormControlLabel,
     Checkbox,
-    // Link,
     Grid,
     Box,
     Typography,
     Container,
 } from "@material-ui/core";
+
+import Alert from "@material-ui/lab/Alert";
+
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
 
-// Temporary
-import { auth } from "../firebase";
-//
-
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
+        marginTop: theme.spacing(4),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -47,37 +46,61 @@ const SignUp = () => {
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [emailValue, setEmailValue] = useState("");
-    const [passwordValue, setPasswordValue] = useState("");
+    const [emailValue, setEmailValue] = useState("test1@umachan.co.uk");
+    const [passwordValue, setPasswordValue] = useState("abc123");
+    const [passwordConfirmValue, setPasswordConfirmValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const history = useHistory();
 
-    const handleSignUpClicked = (event) => {
+    const { signup, signout, sendVerificationEmail } = useAuth();
+
+    const handleSignUpClicked = async (event) => {
         event.preventDefault();
-        console.log("Sign Up Clicked");
 
-        // Google example code
-        // Handle loading/submission status to disable button to stop multiple submit clicks
+        // Check password against confirm password fields
+        if (passwordValue !== passwordConfirmValue) {
+            return setErrorMessage(
+                "Failed to sign up: Passwords do not match."
+            );
+        }
+
+        setErrorMessage("");
         setLoading(true);
-        auth.createUserWithEmailAndPassword(emailValue, passwordValue)
-            .then((userCredential) => {
-                // Signed in
-                var user = userCredential.user;
-                // after profile created, update the display name to be first and last name
-                user.updateProfile({ displayName: firstName + " " + lastName });
-            })
-            .catch((error) => {
-                setErrorMessage(error.code + ": " + error.message);
-                console.log("Error signing up: ", errorMessage);
-            });
+        setMessage("");
 
-        setLoading(false);
+        // Sign up user, send verification email and sign them out immediately until verified
+        try {
+            await signup(emailValue, passwordValue).then((userCredential) => {
+                sendVerificationEmail(userCredential.user);
+            });
+            setMessage("Check your email inbox for further instructions");
+            setTimeout(async () => {
+                await signout();
+                setLoading(false);
+                history.push("/");
+            }, 2000);
+        } catch (error) {
+            setErrorMessage("Failed to sign up: " + error.message);
+            setLoading(false);
+        }
     };
 
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
+                {message && (
+                    <Alert severity="success">
+                        <strong>{message}</strong>
+                    </Alert>
+                )}
+                {errorMessage && (
+                    <Alert severity="error">
+                        <strong>{errorMessage}</strong>
+                    </Alert>
+                )}
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon />
                 </Avatar>
@@ -127,6 +150,7 @@ const SignUp = () => {
                                 onChange={(event) =>
                                     setEmailValue(event.target.value)
                                 }
+                                value={emailValue}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -142,6 +166,23 @@ const SignUp = () => {
                                 onChange={(event) =>
                                     setPasswordValue(event.target.value)
                                 }
+                                value={passwordValue}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                name="passwordConfirm"
+                                label="Confirm Password"
+                                type="password"
+                                id="passwordConfirm"
+                                autoComplete="current-password"
+                                onChange={(event) =>
+                                    setPasswordConfirmValue(event.target.value)
+                                }
+                                value={passwordConfirmValue}
                             />
                         </Grid>
                         <Grid item xs={12}>

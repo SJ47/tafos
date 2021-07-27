@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 import {
@@ -7,8 +7,6 @@ import {
     Avatar,
     CssBaseline,
     TextField,
-    FormControlLabel,
-    Checkbox,
     Grid,
     Box,
     Typography,
@@ -39,49 +37,28 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SignIn = () => {
+const ForgotPassword = () => {
     const classes = useStyles();
 
-    const [emailValue, setEmailValue] = useState("test1@umachan.co.uk");
-    const [passwordValue, setPasswordValue] = useState("abc123");
+    const [emailValue, setEmailValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const history = useHistory();
-    const [currentCredential, setCurrentCredential] = useState();
 
-    const { signin, signout, sendVerificationEmail } = useAuth();
+    const { resetPassword } = useAuth();
 
     const handleSignInClicked = async (event) => {
         event.preventDefault();
         console.log("Sign In Clicked");
 
         try {
+            setMessage("");
             setErrorMessage("");
             setLoading(true);
-            const currentUser = await signin(emailValue, passwordValue);
-
-            // If email is not verified, throw an unverified email error
-            if (currentUser.user.emailVerified === false) {
-                setCurrentCredential(currentUser);
-                await signout();
-                throw new TypeError("Email not yet verified");
-            }
-            history.push("/");
+            await resetPassword(emailValue);
+            setMessage("Check your email inbox for further instructions");
         } catch (error) {
-            setErrorMessage("Failed to sign in: " + error.message);
-        }
-
-        setLoading(false);
-    };
-
-    const handleResendEmailVerificationClicked = () => {
-        try {
-            sendVerificationEmail(currentCredential.user);
-            history.push("/");
-        } catch (error) {
-            setErrorMessage(
-                "Failed to re-send email verification: " + error.message
-            );
+            setErrorMessage("Failed to reset password: " + error.message);
         }
     };
 
@@ -90,32 +67,21 @@ const SignIn = () => {
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <div className={classes.paper}>
+                    {message && (
+                        <Alert severity="success">
+                            <strong>{message}</strong>
+                        </Alert>
+                    )}
                     {errorMessage && (
                         <Alert severity="error">
                             <strong>{errorMessage}</strong>
-                            {errorMessage ===
-                                "Failed to sign in: Email not yet verified" && (
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}
-                                    onClick={
-                                        handleResendEmailVerificationClicked
-                                    }
-                                >
-                                    Click to Re-send Verification Email
-                                </Button>
-                            )}
                         </Alert>
                     )}
-
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        Password Reset
                     </Typography>
                     <form className={classes.form} noValidate>
                         <TextField
@@ -133,27 +99,7 @@ const SignIn = () => {
                             }
                             value={emailValue}
                         />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            onChange={(event) =>
-                                setPasswordValue(event.target.value)
-                            }
-                            value={passwordValue}
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox value="remember" color="primary" />
-                            }
-                            label="Remember me"
-                        />
+
                         <Button
                             type="submit"
                             fullWidth
@@ -161,13 +107,14 @@ const SignIn = () => {
                             color="primary"
                             className={classes.submit}
                             onClick={handleSignInClicked}
+                            disabled={loading}
                         >
-                            Sign In
+                            Reset Password
                         </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link to="/forgot-password" variant="body2">
-                                    Forgot password?
+                                <Link to="/signin" variant="body2">
+                                    Sign In
                                 </Link>
                             </Grid>
                             <Grid item>
@@ -186,4 +133,4 @@ const SignIn = () => {
     );
 };
 
-export default SignIn;
+export default ForgotPassword;
