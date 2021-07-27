@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
 import {
     Button,
     Avatar,
@@ -38,25 +37,20 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const EditProfile = () => {
+const ChangePassword = () => {
     const classes = useStyles();
     const history = useHistory();
 
-    const { currentUser, updateProfile } = useAuth();
+    const { currentUser, updatePassword, signin, signout } = useAuth();
 
-    // If display name is empty or null, then don't try to split it, just set to empty string
-    const fullName =
-        currentUser.displayName !== null
-            ? currentUser.displayName.split(" ")
-            : ["", ""];
-
-    const [firstName, setFirstName] = useState(fullName[0]);
-    const [lastName, setLastName] = useState(fullName[1]);
+    const [passwordValue, setPasswordValue] = useState("");
+    const [passwordNewValue, setPasswordNewValue] = useState("");
+    const [passwordConfirmValue, setPasswordConfirmValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleSaveChangesClicked = async (event) => {
+    const handleChangePasswordClicked = async (event) => {
         event.preventDefault();
 
         setLoading(true);
@@ -64,21 +58,36 @@ const EditProfile = () => {
         setMessage("");
 
         try {
-            // If first and/or last name has changed, update the display name of profile
-            if (firstName + " " + lastName === currentUser.displayName) {
-                throw new TypeError("No changes made");
-            }
-            await updateProfile({
-                displayName: firstName + " " + lastName,
-            });
+            // Check if passwords are valid for submitting
+            if (
+                passwordNewValue === "" ||
+                passwordConfirmValue === "" ||
+                passwordValue === ""
+            )
+                throw new TypeError("Password cannot be blank");
+            if (passwordNewValue !== passwordConfirmValue)
+                throw new TypeError("Passwords do not match");
+            if (passwordNewValue === passwordValue)
+                throw new TypeError(
+                    "New password is the same as the current password"
+                );
 
-            setMessage("Profile Updated");
-            setTimeout(() => {
+            // Passwords look good, so proceed with submitting the change
+            // Re-authenticate user
+            await signin(currentUser.email, passwordValue);
+            // Update with new password
+            await updatePassword(passwordNewValue);
+
+            // Display success message and then push back to / which will be signin
+            setMessage("Password Updated");
+            setTimeout(async () => {
                 setLoading(false);
+                // Signout user after changing password
+                await signout();
                 history.push("/");
             }, 2000);
         } catch (error) {
-            setErrorMessage("Failed to update profile: " + error.message);
+            setErrorMessage("Failed to change password: " + error.message);
             setLoading(false);
         }
     };
@@ -101,39 +110,51 @@ const EditProfile = () => {
                     <PersonOutlineOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Edit Profile
+                    Change Email
                 </Typography>
                 <form className={classes.form} noValidate>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
-                                autoComplete="fname"
-                                name="firstName"
                                 variant="outlined"
                                 required
                                 fullWidth
-                                id="firstName"
-                                label="First Name"
-                                autoFocus
+                                name="password"
+                                label="Current Password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
                                 onChange={(event) =>
-                                    setFirstName(event.target.value)
+                                    setPasswordValue(event.target.value)
                                 }
-                                value={firstName}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
                                 variant="outlined"
                                 required
                                 fullWidth
-                                id="lastName"
-                                label="Last Name"
-                                name="lastName"
-                                autoComplete="lname"
+                                name="passwordNew"
+                                label="New Password"
+                                type="password"
+                                id="passwordNew"
                                 onChange={(event) =>
-                                    setLastName(event.target.value)
+                                    setPasswordNewValue(event.target.value)
                                 }
-                                value={lastName}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                name="passwordConfirm"
+                                label="Confirm New Password"
+                                type="password"
+                                id="passwordConfirm"
+                                onChange={(event) =>
+                                    setPasswordConfirmValue(event.target.value)
+                                }
                             />
                         </Grid>
                     </Grid>
@@ -146,11 +167,14 @@ const EditProfile = () => {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
-                            onClick={handleSaveChangesClicked}
+                            onClick={handleChangePasswordClicked}
                         >
-                            Save Changes
+                            Change Password
                         </Button>
                     </Link>
+                    <Box pb={2} fontStyle="italic">
+                        Changing your password will sign you out
+                    </Box>
 
                     <Link to="/">Cancel</Link>
                 </form>
@@ -162,4 +186,4 @@ const EditProfile = () => {
     );
 };
 
-export default EditProfile;
+export default ChangePassword;

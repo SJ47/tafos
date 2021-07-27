@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
-import ReactDOM from "react-dom";
-import { Link, useHistory } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 import {
@@ -8,16 +7,12 @@ import {
     Avatar,
     CssBaseline,
     TextField,
-    FormControlLabel,
-    Checkbox,
-    // Link,
     Grid,
     Box,
     Typography,
     Container,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import AlertTitle from "@material-ui/lab/AlertTitle";
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
@@ -46,16 +41,11 @@ const ForgotPassword = () => {
     const classes = useStyles();
 
     const [emailValue, setEmailValue] = useState("");
-    // const [passwordValue, setPasswordValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const history = useHistory();
 
     const { resetPassword } = useAuth();
-
-    // const emailRef = useRef();
-    // const passwordRef = useRef();
 
     const handleSignInClicked = async (event) => {
         event.preventDefault();
@@ -67,13 +57,9 @@ const ForgotPassword = () => {
             setLoading(true);
             await resetPassword(emailValue);
             setMessage("Check your email inbox for further instructions");
-
-            // history.push("/");
         } catch (error) {
             setErrorMessage("Failed to reset password: " + error.message);
         }
-
-        setLoading(false);
     };
 
     return (
@@ -112,30 +98,8 @@ const ForgotPassword = () => {
                                 setEmailValue(event.target.value)
                             }
                             value={emailValue}
-                            // ref={emailRef}
                         />
-                        {/* <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            onChange={(event) =>
-                                setPasswordValue(event.target.value)
-                            }
-                            value={passwordValue}
-                            // ref={passwordRef}
-                        /> */}
-                        {/* <FormControlLabel
-                            control={
-                                <Checkbox value="remember" color="primary" />
-                            }
-                            label="Remember me"
-                        /> */}
+
                         <Button
                             type="submit"
                             fullWidth
@@ -143,7 +107,7 @@ const ForgotPassword = () => {
                             color="primary"
                             className={classes.submit}
                             onClick={handleSignInClicked}
-                            // onClick={()=>history.push("signin")}
+                            disabled={loading}
                         >
                             Reset Password
                         </Button>

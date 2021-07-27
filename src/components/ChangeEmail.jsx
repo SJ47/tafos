@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
 import {
     Button,
     Avatar,
@@ -38,25 +37,21 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const EditProfile = () => {
+const ChangeEmail = () => {
     const classes = useStyles();
     const history = useHistory();
 
-    const { currentUser, updateProfile } = useAuth();
+    const { currentUser, updateEmail, signin, sendVerificationEmail } =
+        useAuth();
 
-    // If display name is empty or null, then don't try to split it, just set to empty string
-    const fullName =
-        currentUser.displayName !== null
-            ? currentUser.displayName.split(" ")
-            : ["", ""];
-
-    const [firstName, setFirstName] = useState(fullName[0]);
-    const [lastName, setLastName] = useState(fullName[1]);
+    const [emailValue, setEmailValue] = useState("");
+    const [passwordValue, setPasswordValue] = useState("");
+    const [emailConfirmValue, setEmailConfirmValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleSaveChangesClicked = async (event) => {
+    const handleUpdateEmailClicked = async (event) => {
         event.preventDefault();
 
         setLoading(true);
@@ -64,21 +59,34 @@ const EditProfile = () => {
         setMessage("");
 
         try {
-            // If first and/or last name has changed, update the display name of profile
-            if (firstName + " " + lastName === currentUser.displayName) {
-                throw new TypeError("No changes made");
-            }
-            await updateProfile({
-                displayName: firstName + " " + lastName,
-            });
+            // Check if emails are valid for submitting
+            if (emailValue !== emailConfirmValue)
+                throw new TypeError("Emails do not match");
+            if (emailValue === currentUser.email)
+                throw new TypeError(
+                    "New email is the same as the current email"
+                );
+            if (emailValue === "" || emailConfirmValue === "")
+                throw new TypeError("Email cannot be blank");
 
-            setMessage("Profile Updated");
+            // Emails look good, so proceed with submitting the change
+            // Re-authenticate user
+            await signin(currentUser.email, passwordValue);
+
+            // Update with new email address
+            await updateEmail(emailValue);
+
+            // Send verification email to user
+            await sendVerificationEmail(currentUser);
+
+            // Display success message and then push back to / which will be signin
+            setMessage("Email Updated");
             setTimeout(() => {
                 setLoading(false);
                 history.push("/");
             }, 2000);
         } catch (error) {
-            setErrorMessage("Failed to update profile: " + error.message);
+            setErrorMessage("Failed to change Email: " + error.message);
             setLoading(false);
         }
     };
@@ -101,39 +109,61 @@ const EditProfile = () => {
                     <PersonOutlineOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Edit Profile
+                    Change Email
                 </Typography>
                 <form className={classes.form} noValidate>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
-                                autoComplete="fname"
-                                name="firstName"
                                 variant="outlined"
-                                required
                                 fullWidth
-                                id="firstName"
-                                label="First Name"
-                                autoFocus
-                                onChange={(event) =>
-                                    setFirstName(event.target.value)
-                                }
-                                value={firstName}
+                                label="Current Email Address"
+                                value={currentUser.email}
+                                disabled={true}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
                                 variant="outlined"
                                 required
                                 fullWidth
-                                id="lastName"
-                                label="Last Name"
-                                name="lastName"
-                                autoComplete="lname"
+                                id="email"
+                                label="New Email Address"
+                                name="email"
+                                autoComplete="email"
                                 onChange={(event) =>
-                                    setLastName(event.target.value)
+                                    setEmailValue(event.target.value)
                                 }
-                                value={lastName}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="emailConfirm"
+                                label="Confirm New Email Address"
+                                name="emailConfirm"
+                                autoComplete="email"
+                                onChange={(event) =>
+                                    setEmailConfirmValue(event.target.value)
+                                }
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                name="password"
+                                label="Password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
+                                onChange={(event) =>
+                                    setPasswordValue(event.target.value)
+                                }
+                                value={passwordValue}
                             />
                         </Grid>
                     </Grid>
@@ -146,11 +176,14 @@ const EditProfile = () => {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
-                            onClick={handleSaveChangesClicked}
+                            onClick={handleUpdateEmailClicked}
                         >
-                            Save Changes
+                            Update Email
                         </Button>
                     </Link>
+                    <Box pb={2} fontStyle="italic">
+                        Changing email will generate a new verification email
+                    </Box>
 
                     <Link to="/">Cancel</Link>
                 </form>
@@ -162,4 +195,4 @@ const EditProfile = () => {
     );
 };
 
-export default EditProfile;
+export default ChangeEmail;

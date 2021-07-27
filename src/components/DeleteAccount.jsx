@@ -1,28 +1,17 @@
-import React, { useState, useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
-// Temporary
-import { auth } from "../firebase";
-//
-
-import firebase from "firebase/app";
-import "firebase/auth";
 
 import {
     Button,
     Avatar,
     CssBaseline,
     TextField,
-    FormControlLabel,
-    Checkbox,
-    Grid,
     Box,
     Typography,
     Container,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import AlertTitle from "@material-ui/lab/AlertTitle";
 import { makeStyles } from "@material-ui/core/styles";
 import PersonOutlineOutlinedIcon from "@material-ui/icons/PersonOutlineOutlined";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -52,40 +41,29 @@ const useStyles = makeStyles((theme) => ({
 const DeleteAccount = () => {
     const classes = useStyles();
 
-    // const [emailValue, setEmailValue] = useState("");
     const [passwordValue, setPasswordValue] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [isEmailVerified, setIsEmailVerified] = useState(false);
-    const history = useHistory();
 
-    const { signout, deleteAccount } = useAuth();
-
-    // const emailRef = useRef();
-    // const passwordRef = useRef();
+    const { currentUser, signin, deleteAccount } = useAuth();
 
     const handleDeleteAccountClicked = async (event) => {
         event.preventDefault();
-        console.log("Delete Account Clicked");
 
-        // const user = firebase.auth().currentUser;
-        const user = auth.currentUser;
-        const credentials = firebase.auth.EmailAuthProvider.credential(
-            user.email,
-            passwordValue
-        );
+        setErrorMessage("");
+        setMessage("");
+        setLoading(true);
 
         try {
-            setErrorMessage("");
-            setLoading(true);
-            await user.reauthenticateWithCredential(credentials);
+            // await user.reauthenticateWithCredential(credentials);
+            // Re-authenticate user
+            await signin(currentUser.email, passwordValue);
             await deleteAccount();
-            history.push("/");
         } catch (error) {
             setErrorMessage("Failed to delete account: " + error.message);
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
@@ -93,6 +71,11 @@ const DeleteAccount = () => {
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <div className={classes.paper}>
+                    {message && (
+                        <Alert severity="success">
+                            <strong>{"Success: " + message}</strong>
+                        </Alert>
+                    )}
                     {errorMessage && (
                         <Alert severity="error">
                             <strong>{errorMessage}</strong>
@@ -118,10 +101,9 @@ const DeleteAccount = () => {
                             onChange={(event) =>
                                 setPasswordValue(event.target.value)
                             }
-                            // value={passwordValue}
-                            // ref={passwordRef}
                         />
                         <Button
+                            disabled={loading}
                             type="submit"
                             fullWidth
                             variant="contained"

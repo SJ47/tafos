@@ -1,4 +1,3 @@
-import { useRadioGroup } from "@material-ui/core";
 import { auth } from "../firebase";
 
 export const getCurrentUser = () => {

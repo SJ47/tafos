@@ -9,7 +9,6 @@ import {
     TextField,
     FormControlLabel,
     Checkbox,
-    // Link,
     Grid,
     Box,
     Typography,
@@ -17,16 +16,10 @@ import {
 } from "@material-ui/core";
 
 import Alert from "@material-ui/lab/Alert";
-import AlertTitle from "@material-ui/lab/AlertTitle";
 
 import { makeStyles } from "@material-ui/core/styles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Copyright from "./Copyright";
-
-// Temporary
-import { auth } from "../firebase";
-import { SingleBedOutlined } from "@material-ui/icons";
-//
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -57,6 +50,7 @@ const SignUp = () => {
     const [passwordValue, setPasswordValue] = useState("abc123");
     const [passwordConfirmValue, setPasswordConfirmValue] = useState("abc123");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const history = useHistory();
 
@@ -64,25 +58,29 @@ const SignUp = () => {
 
     const handleSignUpClicked = async (event) => {
         event.preventDefault();
-        console.log("Sign Up Clicked");
 
         // Check password against confirm password fields
         if (passwordValue !== passwordConfirmValue) {
-            return setErrorMessage("Passwords do not match");
+            return setErrorMessage(
+                "Failed to sign up: Passwords do not match."
+            );
         }
+
+        setErrorMessage("");
+        setLoading(true);
+        setMessage("");
 
         // Sign up user, send verification email and sign them out immediately until verified
         try {
-            setErrorMessage("");
-            setLoading(true);
-
             await signup(emailValue, passwordValue).then((userCredential) => {
                 sendVerificationEmail(userCredential.user);
             });
-            await signout().then(() => {
+            setMessage("Check your email inbox for further instructions");
+            setTimeout(async () => {
+                await signout();
                 setLoading(false);
                 history.push("/");
-            });
+            }, 2000);
         } catch (error) {
             setErrorMessage("Failed to sign up: " + error.message);
             setLoading(false);
@@ -93,6 +91,11 @@ const SignUp = () => {
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
+                {message && (
+                    <Alert severity="success">
+                        <strong>{message}</strong>
+                    </Alert>
+                )}
                 {errorMessage && (
                     <Alert severity="error">
                         <strong>{errorMessage}</strong>

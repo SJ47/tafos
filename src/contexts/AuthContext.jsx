@@ -44,14 +44,15 @@ export function AuthProvider({ children }) {
     }
 
     function sendVerificationEmail(user) {
-        // console.log("VERIFICATION EMAIL EXECUTED");
         return user.sendEmailVerification();
     }
 
     function deleteAccount() {
-        console.log("DElETE ACCOUNT EXECUTED");
-        // const user = firebase.auth().currentUser;
         return currentUser.delete();
+    }
+
+    function reauthenticateUser(credential) {
+        return currentUser.reauthenticateWithCredential(credential);
     }
 
     // Only run this when our component mounts and unsubscribe from it where we are done to tidy up the event listener
@@ -75,6 +76,7 @@ export function AuthProvider({ children }) {
         updatePassword,
         sendVerificationEmail,
         deleteAccount,
+        reauthenticateUser,
     };
 
     return (
