@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
     }
 
     function updateProfile(displayName) {
-        return currentUser.updateProfile(displayName);
+        return auth.currentUser.updateProfile(displayName);
     }
 
     function updateEmail(email) {
