@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
 const SignUp = () => {
     const classes = useStyles();
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [firstName, setFirstName] = useState("Fred");
+    const [lastName, setLastName] = useState("Wardo");
     const [emailValue, setEmailValue] = useState("test1@umachan.co.uk");
     const [passwordValue, setPasswordValue] = useState("abc123");
     const [passwordConfirmValue, setPasswordConfirmValue] = useState("abc123");
@@ -54,7 +54,8 @@ const SignUp = () => {
     const [loading, setLoading] = useState(false);
     const history = useHistory();
 
-    const { signup, signout, sendVerificationEmail } = useAuth();
+    const { signup, signout, sendVerificationEmail, updateProfile, signin } =
+        useAuth();
 
     const handleSignUpClicked = async (event) => {
         event.preventDefault();
@@ -75,9 +76,12 @@ const SignUp = () => {
             await signup(emailValue, passwordValue).then((userCredential) => {
                 sendVerificationEmail(userCredential.user);
             });
+
+            await updateProfile({ displayName: firstName + " " + lastName });
+
             setMessage("Check your email inbox for further instructions");
-            setTimeout(async () => {
-                await signout();
+            setTimeout(() => {
+                // await signout();
                 setLoading(false);
                 history.push("/");
             }, 2000);
@@ -114,7 +118,7 @@ const SignUp = () => {
                                 autoComplete="fname"
                                 name="firstName"
                                 variant="outlined"
-                                required
+                                // required
                                 fullWidth
                                 id="firstName"
                                 label="First Name"
@@ -127,7 +131,7 @@ const SignUp = () => {
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
-                                required
+                                // required
                                 fullWidth
                                 id="lastName"
                                 label="Last Name"

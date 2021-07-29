@@ -52,6 +52,7 @@ const EditProfile = () => {
 
     const [firstName, setFirstName] = useState(fullName[0]);
     const [lastName, setLastName] = useState(fullName[1]);
+    const [phone, setPhone] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
@@ -110,7 +111,6 @@ const EditProfile = () => {
                                 autoComplete="fname"
                                 name="firstName"
                                 variant="outlined"
-                                required
                                 fullWidth
                                 id="firstName"
                                 label="First Name"
@@ -124,7 +124,6 @@ const EditProfile = () => {
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 variant="outlined"
-                                required
                                 fullWidth
                                 id="lastName"
                                 label="Last Name"
@@ -134,6 +133,20 @@ const EditProfile = () => {
                                     setLastName(event.target.value)
                                 }
                                 value={lastName}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                id="phone"
+                                label="Phone Number"
+                                name="phone"
+                                autoComplete="phone"
+                                onChange={(event) =>
+                                    setPhone(event.target.value)
+                                }
+                                // value={lastName}
                             />
                         </Grid>
                     </Grid>
